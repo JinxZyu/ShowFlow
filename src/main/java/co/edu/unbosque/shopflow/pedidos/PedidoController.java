@@ -14,13 +14,11 @@ public class PedidoController {
         this.servicio = servicio;
     }
 
-    // POST /api/pedidos  → 201 Created
     @PostMapping
     public ResponseEntity<Pedido> crear(@RequestBody PedidoRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(servicio.crear(request));
     }
 
-    // GET /api/pedidos/{id}  → 200 o 404
     @GetMapping("/{id}")
     public Pedido buscar(@PathVariable String id) {
         return servicio.buscar(id);
