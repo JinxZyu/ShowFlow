@@ -88,22 +88,54 @@ public final class Pedido {
         return new Pedido(this, Estado.PAGADO, comprobante, autorizacion);
     }
 
-    public String getId() { return id; }
-    public Estado getEstado() { return estado; }
-    public String getClienteId() { return clienteId; }
-    public String getDocumentoCliente() { return documentoCliente; }
-    public String getPais() { return pais; }
-    public String getContacto() { return contacto; }
-    public List<ItemPedido> getItems() { return items; }
-    public String getDireccionEnvio() { return direccionEnvio; }
-    public boolean isRecogerEnTienda() { return recogerEnTienda; }
-    public String getCupon() { return cupon; }
-    public String getNotaRegalo() { return notaRegalo; }
-    public boolean isEnvioExpress() { return envioExpress; }
-    public String getCanalNotificacion() { return canalNotificacion; }
-    public BigDecimal getSubtotal() { return subtotal; }
-    public BigDecimal getDescuento() { return descuento; }
-    public Comprobante getComprobante() { return comprobante; }
+    public String getId() {
+        return id;
+    }
+    public Estado getEstado() {
+        return estado;
+    }
+    public String getClienteId() {
+        return clienteId;
+    }
+    public String getDocumentoCliente() {
+        return documentoCliente;
+    }
+    public String getPais() {
+        return pais;
+    }
+    public String getContacto() {
+        return contacto;
+    }
+    public List<ItemPedido> getItems() {
+        return items;
+    }
+    public String getDireccionEnvio() {
+        return direccionEnvio;
+    }
+    public boolean isRecogerEnTienda() {
+        return recogerEnTienda;
+    }
+    public String getCupon() {
+        return cupon;
+    }
+    public String getNotaRegalo() {
+        return notaRegalo;
+    }
+    public boolean isEnvioExpress() {
+        return envioExpress;
+    }
+    public String getCanalNotificacion() {
+        return canalNotificacion;
+    }
+    public BigDecimal getSubtotal() {
+        return subtotal;
+    }
+    public BigDecimal getDescuento() {
+        return descuento;
+    }
+    public Comprobante getComprobante() {
+        return comprobante;
+    }
 
     /** Monto a cobrar en USD: total del comprobante (con impuesto) o, si aún no se factura, subtotal - descuento. */
     public BigDecimal getTotal() {
@@ -115,14 +147,12 @@ public final class Pedido {
     /** Builder de Bloch: obligatorios en el constructor, opciones encadenadas, validación en build(). */
     public static final class Builder {
 
-        // obligatorios
         private final String clienteId;
         private final String documentoCliente;
         private final String pais;
         private final String contacto;
         private final List<ItemPedido> items = new ArrayList<>();
 
-        // opcionales
         private String id;
         private String direccionEnvio;
         private boolean recogerEnTienda;

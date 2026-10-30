@@ -2,7 +2,6 @@ package co.edu.unbosque.shopflow.pedidos;
 
 import java.math.BigDecimal;
 
-/** Línea de un pedido. El precio unitario siempre viene del catálogo, nunca del cliente. */
 public record ItemPedido(String sku, String nombre, int cantidad, BigDecimal precioUnitario) {
 
     public ItemPedido {
