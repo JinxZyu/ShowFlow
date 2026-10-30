@@ -125,6 +125,7 @@ src/main/java/co/edu/unbosque/shopflow/
 | Rol | Prueba | Qué demuestra |
 |---|---|---|
 | A | `PedidoBuilderTest` | El builder no entrega pedidos inválidos y aplica el cupón BOSQUE10 |
+| A | `FacturacionPeruTest` | La familia de Perú (reto A) calcula el IGV del 18 %, valida RUC de 11 dígitos y genera la factura SUNAT |
 | B | `LegacyPayAdapterTest` | El adapter traduce montos, respuestas y errores; la excepción ajena no se filtra al dominio |
 | B | `ReintentoPagoTest`, `AuditoriaPagoTest`, `MetricasPagoTest` | Cada decorador agrega su comportamiento y delega en la pasarela envuelta |
 | C | `CatalogoCacheProxyTest` (con Mockito) | La segunda búsqueda de un mismo SKU no llega al catálogo real; un SKU distinto sí lo consulta |
