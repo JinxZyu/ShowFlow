@@ -38,8 +38,9 @@ public class ConfiguracionPagos {
             pasarela = new ReintentoPago(pasarela, maxIntentos);
         }
         if (auditoria) {
-            pasarela = new AuditoriaPago(pasarela, proveedor, registro);   // por fuera: 1 entrada por cobro
+            pasarela = new AuditoriaPago(pasarela, proveedor, registro);
         }
+        pasarela = new MetricasPago(pasarela, proveedor);
         return pasarela;
     }
 }
