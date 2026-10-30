@@ -14,6 +14,6 @@ public class NotificacionWhatsapp implements Notificacion {
         if (destino == null || !destino.matches("^\\+\\d{10,15}$")) {
             throw new IllegalArgumentException("El número de WhatsApp debe incluir el indicativo (por ejemplo, +573001234567)");
         }
-        bandeja.registrar("WHATSAPP", destino, mensaje);;
+        bandeja.registrar("WHATSAPP", destino, "✅ " + mensaje);
     }
 }
