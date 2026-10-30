@@ -9,12 +9,12 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     @Bean
-    public OpenAPI electroshopOpenApi() {
+    public OpenAPI shopflowOpenApi() {
         return new OpenAPI().info(new Info()
-                .title("ElectroShop - API de pedidos")
+                .title("ShopFlow - API de pedidos")
                 .version("1.0.0")
-                .description("API para procesar pedidos (validación, reserva de inventario, "
-                        + "pago simulado y orden de preparación) y consultar su detalle. "
-                        + "Taller de rendimiento con JMeter - Ingeniería de Software II."));
+                .description("API REST de pedidos de ShopFlow: catálogo, pedidos, facturación por país, "
+                        + "pagos con LegacyPay y QuickPay, auditoría y notificaciones. "
+                        + "Taller de patrones de diseño creacionales y estructurales - Ingeniería de Software 2."));
     }
 }

@@ -10,11 +10,13 @@ public class NotificacionController {
     private final BandejaNotificaciones bandeja;
 
     public NotificacionController(BandejaNotificaciones bandeja) {
+
         this.bandeja = bandeja;
     }
 
     @GetMapping
     public List<BandejaNotificaciones.NotificacionEnviada> listar() {
+
         return bandeja.todas();
     }
 }

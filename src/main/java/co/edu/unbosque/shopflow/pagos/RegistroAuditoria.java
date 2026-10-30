@@ -20,6 +20,7 @@ public class RegistroAuditoria {
     }
 
     public List<EntradaAuditoria> todas() {
+
         return List.copyOf(entradas);
     }
 }
