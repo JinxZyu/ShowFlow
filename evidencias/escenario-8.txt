@@ -1,0 +1,8 @@
+-- GET /api/pagos/auditoria
+[{"proveedor":"LEGACYPAY","monto":145.66,"aprobado":true,"mensaje":"Pago aprobado","duracionMs":309,"fecha":"2026-10-30T11:12:26.9483651"},{"proveedor":"LEGACYPAY","monto":3451.00,"aprobado":false,"mensaje":"Fondos insuficientes","duracionMs":308,"fecha":"2026-10-30T11:12:28.8918754"},{"proveedor":"QUICKPAY","monto":3451.00,"aprobado":true,"mensaje":"Pago aprobado","duracionMs":0,"fecha":"2026-10-30T11:12:28.9268117"}]
+HTTP 200  (0.006266 s)
+
+-- GET /api/notificaciones
+[{"canal":"EMAIL","destino":"ana.perez@correo.com","mensaje":"[ShopFlow: pago aprobado] Tu pago del pedido PED-1 por 145.66 USD fue aprobado. Gracias por comprar en ShopFlow.","fecha":"2026-10-30T11:12:26.9483651"},{"canal":"EMAIL","destino":"luis.gomez@correo.com","mensaje":"[ShopFlow: pago aprobado] Tu pago del pedido PED-6 por 3451.00 USD fue aprobado. Gracias por comprar en ShopFlow.","fecha":"2026-10-30T11:12:28.9268117"}]
+HTTP 200  (0.004667 s)
+

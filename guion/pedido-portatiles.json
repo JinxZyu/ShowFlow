@@ -1,0 +1,9 @@
+{
+  "clienteId": "CLI-004",
+  "documentoCliente": "1020304050",
+  "pais": "CO",
+  "contacto": "luis.gomez@correo.com",
+  "items": [ { "sku": "SKU-004", "cantidad": 2 } ],
+  "direccionEnvio": "Carrera 7 # 40-62, Bogota",
+  "canalNotificacion": "EMAIL"
+}

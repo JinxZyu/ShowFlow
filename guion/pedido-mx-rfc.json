@@ -1,0 +1,9 @@
+{
+  "clienteId": "CLI-003",
+  "documentoCliente": "GODE561231GR8",
+  "pais": "MX",
+  "contacto": "+525512345678",
+  "items": [ { "sku": "SKU-005", "cantidad": 1 } ],
+  "recogerEnTienda": true,
+  "canalNotificacion": "SMS"
+}

@@ -1,0 +1,8 @@
+-- GET /api/productos/SKU-003 [primera vez]
+{"sku":"SKU-003","nombre":"Monitor 27 pulgadas","precio":320.00}
+HTTP 200  (1.535305 s)
+
+-- GET /api/productos/SKU-003 [segunda vez]
+{"sku":"SKU-003","nombre":"Monitor 27 pulgadas","precio":320.00}
+HTTP 200  (0.005018 s)
+

@@ -1,0 +1,8 @@
+-- POST /api/pedidos  sin items
+{"error":"El pedido debe tener al menos un ítem"}
+HTTP 400  (0.007457 s)
+
+-- POST /api/pedidos  recoger en tienda + envio express
+{"error":"Un pedido para recoger en tienda no puede ser de envío express"}
+HTTP 400  (1.518103 s)
+

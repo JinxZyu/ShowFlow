@@ -1,0 +1,8 @@
+-- POST /api/pedidos  Mexico con RFC GODE561231GR8
+{"id":"PED-4","estado":"CREADO","clienteId":"CLI-003","documentoCliente":"GODE561231GR8","pais":"MX","contacto":"+525512345678","items":[{"sku":"SKU-005","nombre":"Diadema con micrófono","cantidad":1,"precioUnitario":60.00}],"direccionEnvio":null,"recogerEnTienda":true,"cupon":null,"notaRegalo":null,"envioExpress":false,"canalNotificacion":"SMS","subtotal":60.00,"descuento":0.00,"comprobante":{"tipo":"CFDI (SAT)","numero":"CFDI-MX-4","base":60.00,"nombreImpuesto":"IVA 16%","impuesto":9.60,"total":69.60},"autorizacionPago":null,"total":69.60}
+HTTP 201  (0.022153 s)
+
+-- POST /api/pedidos  Mexico con cedula 1020304050
+{"error":"Para México el documento debe ser un RFC válido"}
+HTTP 400  (0.007812 s)
+

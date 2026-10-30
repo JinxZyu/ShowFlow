@@ -1,0 +1,12 @@
+-- POST /api/pedidos  2 portatiles SKU-004
+{"id":"PED-6","estado":"CREADO","clienteId":"CLI-004","documentoCliente":"1020304050","pais":"CO","contacto":"luis.gomez@correo.com","items":[{"sku":"SKU-004","nombre":"Portátil 14 pulgadas","cantidad":2,"precioUnitario":1450.00}],"direccionEnvio":"Carrera 7 # 40-62, Bogota","recogerEnTienda":false,"cupon":null,"notaRegalo":null,"envioExpress":false,"canalNotificacion":"EMAIL","subtotal":2900.00,"descuento":0.00,"comprobante":{"tipo":"Factura electrónica (DIAN)","numero":"FE-CO-6","base":2900.00,"nombreImpuesto":"IVA 19%","impuesto":551.00,"total":3451.00},"autorizacionPago":null,"total":3451.00}
+HTTP 201  (1.518070 s)
+
+-- POST /api/pedidos/PED-6/pago  LEGACYPAY
+{"error":"Fondos insuficientes"}
+HTTP 409  (0.308230 s)
+
+-- POST /api/pedidos/PED-6/pago  QUICKPAY
+{"id":"PED-6","estado":"PAGADO","clienteId":"CLI-004","documentoCliente":"1020304050","pais":"CO","contacto":"luis.gomez@correo.com","items":[{"sku":"SKU-004","nombre":"Portátil 14 pulgadas","cantidad":2,"precioUnitario":1450.00}],"direccionEnvio":"Carrera 7 # 40-62, Bogota","recogerEnTienda":false,"cupon":null,"notaRegalo":null,"envioExpress":false,"canalNotificacion":"EMAIL","subtotal":2900.00,"descuento":0.00,"comprobante":{"tipo":"Factura electrónica (DIAN)","numero":"FE-CO-6","base":2900.00,"nombreImpuesto":"IVA 19%","impuesto":551.00,"total":3451.00},"autorizacionPago":"QP-3c06a40e","total":3451.00}
+HTTP 200  (0.008142 s)
+

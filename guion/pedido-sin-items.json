@@ -1,0 +1,9 @@
+{
+  "clienteId": "CLI-002",
+  "documentoCliente": "1020304050",
+  "pais": "CO",
+  "contacto": "ana.perez@correo.com",
+  "items": [],
+  "direccionEnvio": "Calle 134 # 9-51, Bogota",
+  "canalNotificacion": "EMAIL"
+}
