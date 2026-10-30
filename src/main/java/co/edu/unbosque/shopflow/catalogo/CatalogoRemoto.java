@@ -7,7 +7,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 
-
+/**
+ * Simula el servicio de catálogo de otro equipo, desplegado en otra máquina:
+ * cada llamada tarda 1,5 segundos. Código base: NO SE MODIFICA.
+ */
 public class CatalogoRemoto implements ServicioCatalogo {
 
     private final Map<String, Producto> productos = new ConcurrentHashMap<>(Map.of(
