@@ -1,0 +1,16 @@
+
+# Archivos compilados de Maven
+target/
+
+# Archivos temporales
+*.log
+*.tmp
+
+# Configuración personal de Eclipse
+.classpath
+.project
+.settings/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db

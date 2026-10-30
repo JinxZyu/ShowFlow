@@ -1,4 +1,4 @@
-package co.edu.unbosque.shopflow.notificaciones;
+package co.edu.unbosque.shopflow.notificaciones.infraestructura;
 
 import java.time.LocalDateTime;
 import java.util.List;

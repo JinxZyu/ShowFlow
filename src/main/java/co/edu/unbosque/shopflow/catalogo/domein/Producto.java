@@ -1,4 +1,4 @@
-package co.edu.unbosque.shopflow.catalogo;
+package co.edu.unbosque.shopflow.catalogo.domein;
 
 import java.math.BigDecimal;
 

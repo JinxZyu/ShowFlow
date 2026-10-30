@@ -7,6 +7,11 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 
+import co.edu.unbosque.shopflow.catalogo.domein.Producto;
+import co.edu.unbosque.shopflow.catalogo.domein.ServicioCatalogo;
+
+
+
 /**
  * Simula el servicio de catálogo de otro equipo, desplegado en otra máquina:
  * cada llamada tarda 1,5 segundos. Código base: NO SE MODIFICA.
