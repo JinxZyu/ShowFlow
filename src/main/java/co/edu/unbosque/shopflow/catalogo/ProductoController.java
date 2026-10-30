@@ -1,8 +1,9 @@
 package co.edu.unbosque.shopflow.catalogo;
 
+import org.springframework.web.bind.annotation.*;
+
 import java.math.BigDecimal;
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -31,10 +32,8 @@ public class ProductoController {
         if (body.precio() == null || body.precio().signum() <= 0) {
             throw new IllegalArgumentException("El precio debe ser mayor que cero");   // → 400
         }
-        // AQUÍ entra el patrón cuando exista:
-        // ServicioCatalogo protegido = new CatalogoProteccionProxy(catalogo, rol);
-        // return protegido.actualizarPrecio(sku, body.precio());
-        return catalogo.actualizarPrecio(sku, body.precio());
+        ServicioCatalogo protegido = new CatalogoProteccionProxy(catalogo, rol);
+        return protegido.actualizarPrecio(sku, body.precio());
     }
 
     public record CambioPrecio(BigDecimal precio) { }

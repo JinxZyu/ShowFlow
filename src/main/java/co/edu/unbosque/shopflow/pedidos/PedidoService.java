@@ -4,6 +4,7 @@ import co.edu.unbosque.shopflow.catalogo.Producto;
 import co.edu.unbosque.shopflow.catalogo.ServicioCatalogo;
 import co.edu.unbosque.shopflow.facturacion.ServicioFacturacion;
 import co.edu.unbosque.shopflow.notificaciones.Notificador;
+import co.edu.unbosque.shopflow.pagos.PasarelaDePago;
 import co.edu.unbosque.shopflow.pagos.ResultadoPago;
 import java.util.List;
 import java.util.Locale;
@@ -16,28 +17,28 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class PedidoService {
 
-    // Este Map es el "repositorio": no hay base de datos
     private final Map<String, Pedido> pedidos = new ConcurrentHashMap<>();
     private final AtomicLong secuencia = new AtomicLong();
 
     private final ServicioCatalogo catalogo;
     private final ServicioFacturacion facturacion;
     private final Map<String, Notificador> notificadores;
+    private final Map<String, PasarelaDePago> pasarelas;   // las arma ConfiguracionPagos (adapters + decoradores)
 
     public PedidoService(ServicioCatalogo catalogo,
                          ServicioFacturacion facturacion,
-                         List<Notificador> notificadores) {
+                         List<Notificador> notificadores,
+                         Map<String, PasarelaDePago> pasarelas) {
         this.catalogo = catalogo;
         this.facturacion = facturacion;
         this.notificadores = notificadores.stream()
                 .collect(Collectors.toUnmodifiableMap(Notificador::canal, Function.identity()));
+        this.pasarelas = pasarelas;
     }
 
-    /** Director del Builder: traduce el JSON recibido a llamadas al builder, factura y guarda. */
     public Pedido crear(PedidoRequest request) {
         Pedido.Builder builder = new Pedido.Builder(
                 request.clienteId(), request.documentoCliente(), request.pais(), request.contacto())
@@ -87,12 +88,15 @@ public class PedidoService {
         return pagado;
     }
 
-    /** PENDIENTE (Adapter + Decorator): elegir la pasarela por proveedor y cobrar el total con impuestos. */
     private ResultadoPago cobrar(Pedido pedido, String proveedor) {
-        throw new UnsupportedOperationException("Pendiente: Adapter / Decorator");
+        PasarelaDePago pasarela = (proveedor == null) ? null
+                : pasarelas.get(proveedor.trim().toUpperCase(Locale.ROOT));
+        if (pasarela == null) {
+            throw new IllegalArgumentException("Proveedor no soportado: " + proveedor);   // → 400
+        }
+        return pasarela.cobrar(pedido.getTotal(), pedido.getId());
     }
 
-    /** Usa el creador del canal elegido; no sabe qué notificación concreta se crea. */
     private void notificarPagoAprobado(Pedido pedido) {
         Optional.ofNullable(pedido.getCanalNotificacion())
                 .map(notificadores::get)
@@ -100,7 +104,6 @@ public class PedidoService {
                         pedido.getContacto(), pedido.getId(), pedido.getComprobante().total()));
     }
 
-    /** Rechaza (400) un canal que no tiene creador registrado. */
     private String validarCanal(String canal) {
         if (canal == null || canal.isBlank()) {
             return null;

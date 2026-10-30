@@ -1,0 +1,10 @@
+# Compilados
+target/
+bin/
+
+# Archivos de los IDE
+.idea/
+*.iml
+.project
+.classpath
+.settings/

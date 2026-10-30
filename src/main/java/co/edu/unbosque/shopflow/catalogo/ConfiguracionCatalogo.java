@@ -1,13 +1,13 @@
 package co.edu.unbosque.shopflow.catalogo;
 
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ConfiguracionCatalogo {
 
     @Bean
     public ServicioCatalogo servicioCatalogo() {
-        return new CatalogoRemoto();
-        // cuando exista el proxy: return new CatalogoCacheProxy(new CatalogoRemoto());
+        return new CatalogoCacheProxy(new CatalogoRemoto());
     }
 }
