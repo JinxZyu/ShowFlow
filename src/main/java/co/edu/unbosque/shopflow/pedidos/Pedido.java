@@ -1,8 +1,5 @@
 package co.edu.unbosque.shopflow.pedidos;
 
-<<<<<<< Updated upstream
-/** PROVISIONAL: lo reemplaza quien haga el Builder. */
-=======
 import co.edu.unbosque.shopflow.facturacion.Comprobante;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -11,8 +8,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-
->>>>>>> Stashed changes
+/**
+ * Pedido inmutable (Product del patrón Builder).
+ * Solo se crea mediante {@link Builder#build()}, que garantiza que nunca existe un pedido inválido.
+ * Los cambios de estado (comprobante, pago) devuelven una copia nueva.
+ */
 public final class Pedido {
 
     public static final String CUPON_BOSQUE10 = "BOSQUE10";
@@ -104,6 +104,12 @@ public final class Pedido {
     public BigDecimal getSubtotal() { return subtotal; }
     public BigDecimal getDescuento() { return descuento; }
     public Comprobante getComprobante() { return comprobante; }
+
+    /** Monto a cobrar en USD: total del comprobante (con impuesto) o, si aún no se factura, subtotal - descuento. */
+    public BigDecimal getTotal() {
+        return comprobante != null ? comprobante.total() : subtotal.subtract(descuento);
+    }
+
     public String getAutorizacionPago() { return autorizacionPago; }
 
     /** Builder de Bloch: obligatorios en el constructor, opciones encadenadas, validación en build(). */
