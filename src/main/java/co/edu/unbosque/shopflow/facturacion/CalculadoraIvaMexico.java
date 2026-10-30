@@ -18,3 +18,4 @@ public class CalculadoraIvaMexico implements CalculadoraImpuestos {
         return base.multiply(TASA).setScale(2, RoundingMode.HALF_UP);
     }
 }
+

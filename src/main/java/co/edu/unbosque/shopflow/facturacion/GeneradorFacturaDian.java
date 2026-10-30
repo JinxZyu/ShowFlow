@@ -11,3 +11,4 @@ public class GeneradorFacturaDian implements GeneradorComprobante {
                 base, nombreImpuesto, impuesto, base.add(impuesto));
     }
 }
+

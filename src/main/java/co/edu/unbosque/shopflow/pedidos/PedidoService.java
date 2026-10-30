@@ -3,14 +3,18 @@ package co.edu.unbosque.shopflow.pedidos;
 import co.edu.unbosque.shopflow.catalogo.Producto;
 import co.edu.unbosque.shopflow.catalogo.ServicioCatalogo;
 import co.edu.unbosque.shopflow.facturacion.ServicioFacturacion;
-import co.edu.unbosque.shopflow.pagos.PasarelaDePago;
+import co.edu.unbosque.shopflow.notificaciones.Notificador;
 import co.edu.unbosque.shopflow.pagos.ResultadoPago;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,17 +26,18 @@ public class PedidoService {
 
     private final ServicioCatalogo catalogo;
     private final ServicioFacturacion facturacion;
-    private final Map<String, PasarelaDePago> pasarelas;
+    private final Map<String, Notificador> notificadores;
 
     public PedidoService(ServicioCatalogo catalogo,
                          ServicioFacturacion facturacion,
-                         Map<String, PasarelaDePago> pasarelas) {
+                         List<Notificador> notificadores) {
         this.catalogo = catalogo;
         this.facturacion = facturacion;
-        this.pasarelas = pasarelas;
+        this.notificadores = notificadores.stream()
+                .collect(Collectors.toUnmodifiableMap(Notificador::canal, Function.identity()));
     }
 
-    /** Director del Builder: traduce el JSON a llamadas al builder, factura y guarda. */
+    /** Director del Builder: traduce el JSON recibido a llamadas al builder, factura y guarda. */
     public Pedido crear(PedidoRequest request) {
         Pedido.Builder builder = new Pedido.Builder(
                 request.clienteId(), request.documentoCliente(), request.pais(), request.contacto())
@@ -42,7 +47,7 @@ public class PedidoService {
                 .cupon(request.cupon())
                 .notaRegalo(request.notaRegalo())
                 .envioExpress(Boolean.TRUE.equals(request.envioExpress()))
-                .canalNotificacion(request.canalNotificacion());
+                .canalNotificacion(validarCanal(request.canalNotificacion()));
 
         if (request.items() != null) {
             for (PedidoRequest.ItemRequest item : request.items()) {
@@ -71,22 +76,40 @@ public class PedidoService {
             throw new IllegalStateException("El pedido " + id + " ya está pagado");   // → 409
         }
 
-        ResultadoPago resultado = elegirPasarela(proveedor).cobrar(pedido.getTotal(), pedido.getId());
+        ResultadoPago resultado = cobrar(pedido, proveedor);
         if (!resultado.aprobado()) {
             throw new IllegalStateException(resultado.mensaje());   // → 409
         }
 
         Pedido pagado = pedido.conPagoAprobado(resultado.autorizacion());
         pedidos.put(id, pagado);
-        // FACTORY METHOD: quien tenga Notificaciones agrega aquí la notificación del pago aprobado.
+        notificarPagoAprobado(pagado);
         return pagado;
     }
 
-    private PasarelaDePago elegirPasarela(String proveedor) {
-        return Optional.ofNullable(proveedor)
-                .map(p -> p.trim().toUpperCase(Locale.ROOT))
-                .map(pasarelas::get)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Proveedor de pago no válido: " + proveedor + ". Use LEGACYPAY o QUICKPAY"));   // → 400
+    /** PENDIENTE (Adapter + Decorator): elegir la pasarela por proveedor y cobrar el total con impuestos. */
+    private ResultadoPago cobrar(Pedido pedido, String proveedor) {
+        throw new UnsupportedOperationException("Pendiente: Adapter / Decorator");
+    }
+
+    /** Usa el creador del canal elegido; no sabe qué notificación concreta se crea. */
+    private void notificarPagoAprobado(Pedido pedido) {
+        Optional.ofNullable(pedido.getCanalNotificacion())
+                .map(notificadores::get)
+                .ifPresent(n -> n.notificarPagoAprobado(
+                        pedido.getContacto(), pedido.getId(), pedido.getComprobante().total()));
+    }
+
+    /** Rechaza (400) un canal que no tiene creador registrado. */
+    private String validarCanal(String canal) {
+        if (canal == null || canal.isBlank()) {
+            return null;
+        }
+        String normalizado = canal.trim().toUpperCase(Locale.ROOT);
+        if (!notificadores.containsKey(normalizado)) {
+            throw new IllegalArgumentException(
+                    "Canal de notificación no soportado: " + canal + ". Disponibles: " + notificadores.keySet());
+        }
+        return normalizado;
     }
 }

@@ -11,3 +11,4 @@ public class GeneradorCfdiSat implements GeneradorComprobante {
                 base, nombreImpuesto, impuesto, base.add(impuesto));
     }
 }
+

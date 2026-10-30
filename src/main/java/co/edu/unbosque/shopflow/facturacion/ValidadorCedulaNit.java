@@ -2,7 +2,6 @@ package co.edu.unbosque.shopflow.facturacion;
 
 import java.util.regex.Pattern;
 
-
 public class ValidadorCedulaNit implements ValidadorIdentificacion {
 
     private static final Pattern FORMATO = Pattern.compile("\\d{6,10}");
@@ -15,3 +14,4 @@ public class ValidadorCedulaNit implements ValidadorIdentificacion {
         }
     }
 }
+
