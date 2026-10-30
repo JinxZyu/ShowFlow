@@ -70,45 +70,7 @@ src/main/java/co/edu/unbosque/shopflow/
 
 **Problema.** El pedido tiene datos obligatorios (cliente, documento, país, contacto, al menos un ítem) y opciones con reglas que cruzan varios campos: la dirección es obligatoria si no se recoge en tienda, recoger en tienda y envío express son incompatibles y la nota de regalo admite máximo 140 caracteres. `Pedido` es inmutable y solo se crea con `Pedido.Builder`, cuyo `build()` valida todas las reglas en un solo lugar: nunca existe un pedido inválido.
 
-```mermaid
-classDiagram
-    class Pedido {
-        <<Product>>
-        -String id
-        -List~ItemPedido~ items
-        -BigDecimal subtotal
-        -BigDecimal descuento
-        -Comprobante comprobante
-        -Pedido(Builder b)
-        +conComprobante(Comprobante) Pedido
-        +conPagoAprobado(String) Pedido
-        +getTotal() BigDecimal
-    }
-    class Builder {
-        <<Builder>>
-        +Builder(clienteId, documento, pais, contacto)
-        +item(ItemPedido) Builder
-        +direccionEnvio(String) Builder
-        +recogerEnTienda(boolean) Builder
-        +cupon(String) Builder
-        +notaRegalo(String) Builder
-        +envioExpress(boolean) Builder
-        +canalNotificacion(String) Builder
-        +build() Pedido
-    }
-    class PedidoService {
-        <<Director>>
-        +crear(PedidoRequest) Pedido
-    }
-    class ItemPedido {
-        <<record>>
-        sku, nombre, cantidad, precioUnitario
-    }
-    Pedido *-- Builder : clase estática anidada
-    PedidoService ..> Builder : traduce el JSON a llamadas
-    Builder ..> Pedido : build()
-    Pedido o-- ItemPedido
-```
+![Diagrama de clases del Builder](docs/diagramas/builder.png)
 
 **Endpoint:** `POST /api/pedidos` (201 con el pedido · 400 si se rompe una regla) y `GET /api/pedidos/{id}`.
 **Evidencia:** `evidencias/escenario-3.txt` (cupón BOSQUE10) y `escenario-4.txt` (sin ítems; tienda + express).
@@ -117,54 +79,7 @@ classDiagram
 
 **Problema.** Colombia factura con IVA 19 %, cédula o NIT y factura electrónica de la DIAN; México con IVA 16 %, RFC y CFDI del SAT. Las tres piezas deben ser del mismo país. `ServicioFacturacion` recibe todas las fábricas (`List<FabricaFacturacion>`), las indexa por país y factura sin conocer ninguna clase concreta, sin `if` ni `switch` por país.
 
-```mermaid
-classDiagram
-    class FabricaFacturacion {
-        <<AbstractFactory>>
-        +pais() String
-        +crearCalculadora() CalculadoraImpuestos
-        +crearValidador() ValidadorIdentificacion
-        +crearGenerador() GeneradorComprobante
-    }
-    class FabricaColombia {
-        <<ConcreteFactory>>
-    }
-    class FabricaMexico {
-        <<ConcreteFactory>>
-    }
-    class CalculadoraImpuestos {
-        <<AbstractProduct>>
-        +calcular(BigDecimal) BigDecimal
-    }
-    class ValidadorIdentificacion {
-        <<AbstractProduct>>
-        +validar(String)
-    }
-    class GeneradorComprobante {
-        <<AbstractProduct>>
-        +generar(...) Comprobante
-    }
-    class ServicioFacturacion {
-        <<Client>>
-        -Map~String, FabricaFacturacion~ fabricas
-        +facturar(Pedido) Comprobante
-    }
-    FabricaColombia ..|> FabricaFacturacion
-    FabricaMexico ..|> FabricaFacturacion
-    CalculadoraIvaColombia ..|> CalculadoraImpuestos
-    CalculadoraIvaMexico ..|> CalculadoraImpuestos
-    ValidadorCedulaNit ..|> ValidadorIdentificacion
-    ValidadorRfc ..|> ValidadorIdentificacion
-    GeneradorFacturaDian ..|> GeneradorComprobante
-    GeneradorCfdiSat ..|> GeneradorComprobante
-    FabricaColombia ..> CalculadoraIvaColombia : crea
-    FabricaColombia ..> ValidadorCedulaNit : crea
-    FabricaColombia ..> GeneradorFacturaDian : crea
-    FabricaMexico ..> CalculadoraIvaMexico : crea
-    FabricaMexico ..> ValidadorRfc : crea
-    FabricaMexico ..> GeneradorCfdiSat : crea
-    ServicioFacturacion --> FabricaFacturacion
-```
+![Diagrama de clases del Abstract Factory](docs/diagramas/abstract-factory.png)
 
 **Endpoint:** el comprobante se incluye en la respuesta de `POST /api/pedidos`.
 **Evidencia:** `evidencias/escenario-3.txt` (DIAN, IVA 19 %) y `escenario-5.txt` (CFDI, IVA 16 %; México con cédula colombiana → 400).
@@ -173,46 +88,7 @@ classDiagram
 
 **Problema.** Cuando se aprueba un pago se notifica al cliente por el canal que eligió. El proceso es siempre el mismo (armar el mensaje, crear la notificación y enviarla); lo que cambia es la notificación: el correo exige un contacto con «@» y lleva asunto, el SMS se recorta a 160 caracteres. `Notificador.notificarPagoAprobado(...)` es `final` y llama al método fábrica `crearNotificacion()`, que cada subclase implementa. `PedidoService` recibe `List<Notificador>`, los indexa por canal y no contiene ningún `new Notificacion…` ni `if` por canal.
 
-```mermaid
-classDiagram
-    class Notificador {
-        <<Creator>>
-        +canal()* String
-        +notificarPagoAprobado(destino, idPedido, total)
-        #crearNotificacion()* Notificacion
-    }
-    class NotificadorEmail {
-        <<ConcreteCreator>>
-        #crearNotificacion() Notificacion
-    }
-    class NotificadorSms {
-        <<ConcreteCreator>>
-        #crearNotificacion() Notificacion
-    }
-    class Notificacion {
-        <<Product>>
-        +enviar(destino, mensaje)
-    }
-    class NotificacionEmail {
-        <<ConcreteProduct>>
-    }
-    class NotificacionSms {
-        <<ConcreteProduct>>
-    }
-    class PedidoService {
-        -Map~String, Notificador~ notificadores
-    }
-    NotificadorEmail --|> Notificador
-    NotificadorSms --|> Notificador
-    NotificacionEmail ..|> Notificacion
-    NotificacionSms ..|> Notificacion
-    NotificadorEmail ..> NotificacionEmail : crea
-    NotificadorSms ..> NotificacionSms : crea
-    Notificador ..> Notificacion : usa
-    PedidoService --> Notificador
-    NotificacionEmail --> BandejaNotificaciones
-    NotificacionSms --> BandejaNotificaciones
-```
+![Diagrama de clases del Factory Method](docs/diagramas/factory-method.png)
 
 **Endpoint:** `GET /api/notificaciones`. Crear un pedido con un canal no soportado responde 400.
 **Evidencia:** `evidencias/escenario-8.txt` (una notificación por pago aprobado, en el canal del pedido).
@@ -221,40 +97,7 @@ classDiagram
 
 **Problema.** ShopFlow cobra con dos proveedores cuyos SDK no se pueden modificar y no coinciden entre sí ni con ShopFlow. Cada adapter implementa `PasarelaDePago` y traduce en tres sentidos: la **entrada** (dólares `BigDecimal` → centavos `long` en LegacyPay; `BigDecimal` → `double` en QuickPay), la **salida** (`"00|LP4051"` o el enum `OK/REJECTED/ERROR` → `ResultadoPago`) y los **errores** (`LegacyPayTimeoutException` → `PasarelaNoDisponibleException`, que la API responde como 503). Ninguna clase fuera de los adapters, salvo `ConfiguracionPagos`, importa algo del paquete `externos`.
 
-```mermaid
-classDiagram
-    class PasarelaDePago {
-        <<Target>>
-        +cobrar(BigDecimal montoUsd, String referencia) ResultadoPago
-    }
-    class LegacyPayAdapter {
-        <<Adapter>>
-        -LegacyPayClient cliente
-        +cobrar(BigDecimal, String) ResultadoPago
-    }
-    class QuickPayAdapter {
-        <<Adapter>>
-        -QuickPaySdk sdk
-        +cobrar(BigDecimal, String) ResultadoPago
-    }
-    class LegacyPayClient {
-        <<Adaptee>>
-        +makeCharge(long amountInCents, String currency, String reference) String
-    }
-    class QuickPaySdk {
-        <<Adaptee>>
-        +pay(QuickPayRequest) QuickPayResult
-    }
-    class PedidoService {
-        <<Client>>
-        -Map~String, PasarelaDePago~ pasarelas
-    }
-    LegacyPayAdapter ..|> PasarelaDePago
-    QuickPayAdapter ..|> PasarelaDePago
-    LegacyPayAdapter --> LegacyPayClient : traduce
-    QuickPayAdapter --> QuickPaySdk : traduce
-    PedidoService --> PasarelaDePago
-```
+![Diagrama de clases del Adapter](docs/diagramas/adapter.png)
 
 **Endpoint:** `POST /api/pedidos/{id}/pago` con `{"proveedor": "LEGACYPAY"}` o `{"proveedor": "QUICKPAY"}`.
 **Evidencia:** `evidencias/escenario-6.txt` y `escenario-7.txt` (más de 2.000 USD con LegacyPay → 409 «Fondos insuficientes»; el mismo pedido con QuickPay → 200, sin cambiar `PedidoService`).
@@ -263,51 +106,7 @@ classDiagram
 
 **Problema.** Hay que reintentar los cobros de LegacyPay, auditar todos los cobros de los dos proveedores y poder apagar los reintentos en pruebas. Cada capa es un decorador que **es** una `PasarelaDePago` y **tiene** una `PasarelaDePago` (la envuelta), así que se apilan en cualquier orden y el cliente no distingue una pasarela decorada de una sin decorar. `ConfiguracionPagos` es el único lugar que conoce las clases concretas y arma las capas según `application.properties`: `Métricas(Auditoría(Reintento(Adapter)))`.
 
-```mermaid
-classDiagram
-    class PasarelaDePago {
-        <<Component>>
-        +cobrar(BigDecimal, String) ResultadoPago
-    }
-    class LegacyPayAdapter {
-        <<ConcreteComponent>>
-    }
-    class QuickPayAdapter {
-        <<ConcreteComponent>>
-    }
-    class PasarelaDecorator {
-        <<Decorator>>
-        #PasarelaDePago envuelta
-        +cobrar(BigDecimal, String) ResultadoPago
-    }
-    class ReintentoPago {
-        <<ConcreteDecorator>>
-        -int maxIntentos
-    }
-    class AuditoriaPago {
-        <<ConcreteDecorator>>
-        -String proveedor
-        -RegistroAuditoria registro
-    }
-    class MetricasPago {
-        <<ConcreteDecorator>>
-        -AtomicInteger cobros
-        -AtomicInteger aprobados
-    }
-    class ConfiguracionPagos {
-        +pasarelas(RegistroAuditoria) Map
-        -armarCapas(...) PasarelaDePago
-    }
-    LegacyPayAdapter ..|> PasarelaDePago
-    QuickPayAdapter ..|> PasarelaDePago
-    PasarelaDecorator ..|> PasarelaDePago
-PasarelaDecorator o--> PasarelaDePago : envuelta
-ReintentoPago --|> PasarelaDecorator
-AuditoriaPago --|> PasarelaDecorator
-MetricasPago --|> PasarelaDecorator
-AuditoriaPago --> RegistroAuditoria
-ConfiguracionPagos ..> PasarelaDecorator : arma las capas
-```
+![Diagrama de clases del Decorator](docs/diagramas/decorator.png)
 
 **Endpoint:** `GET /api/pagos/auditoria`.
 **Evidencia:** `evidencias/escenario-8.txt` (exactamente una entrada de auditoría por cobro). En una simulación de 1.000 cobros con LegacyPay al 30 % de fallos, sin reintentos se aprobó el 69,3 % y con 3 intentos el 97,8 % (el teórico es 1 − 0,3³ ≈ 97,3 %).
@@ -316,43 +115,7 @@ ConfiguracionPagos ..> PasarelaDecorator : arma las capas
 
 **Problema.** `CatalogoRemoto` simula un servicio de otro equipo que tarda 1,5 s por llamada y no se puede modificar, y cambiar un precio es una operación restringida al rol ADMIN. Los dos proxies implementan `ServicioCatalogo`, así que ningún cliente sabe si habla con el objeto real o con un intermediario. `ConfiguracionCatalogo` entrega `new CatalogoCacheProxy(new CatalogoRemoto())` como el `ServicioCatalogo` de toda la aplicación, y `ProductoController` envuelve el catálogo en el proxy de protección con el rol del encabezado `X-Rol`.
 
-```mermaid
-classDiagram
-    class ServicioCatalogo {
-        <<Subject>>
-        +buscar(String sku) Producto
-        +listar() List~Producto~
-        +actualizarPrecio(String sku, BigDecimal) Producto
-    }
-    class CatalogoRemoto {
-        <<RealSubject>>
-        1,5 s por llamada
-    }
-    class CatalogoCacheProxy {
-        <<Proxy>>
-        -ServicioCatalogo real
-        -Map~String, Producto~ cache
-    }
-    class CatalogoProteccionProxy {
-        <<Proxy>>
-        -ServicioCatalogo real
-        -String rol
-    }
-    class ProductoController {
-        <<Client>>
-    }
-    class PedidoService {
-        <<Client>>
-    }
-    CatalogoRemoto ..|> ServicioCatalogo
-    CatalogoCacheProxy ..|> ServicioCatalogo
-    CatalogoProteccionProxy ..|> ServicioCatalogo
-    CatalogoCacheProxy --> ServicioCatalogo : real
-    CatalogoProteccionProxy --> ServicioCatalogo : real
-    ProductoController --> ServicioCatalogo
-    PedidoService --> ServicioCatalogo
-    ConfiguracionCatalogo ..> CatalogoCacheProxy : crea
-```
+![Diagrama de clases del Proxy](docs/diagramas/proxy.png)
 
 **Endpoint:** `GET /api/productos`, `GET /api/productos/{sku}` (caché) y `PUT /api/productos/{sku}/precio` (protección: 403 sin rol ADMIN).
 **Evidencia:** `evidencias/escenario-1.txt` (primera consulta ≈ 1,5 s; la segunda ≈ 0 s) y `escenario-2.txt` (CLIENTE → 403, ADMIN → 200 y la consulta siguiente muestra el precio nuevo).
@@ -362,7 +125,6 @@ classDiagram
 | Rol | Prueba | Qué demuestra |
 |---|---|---|
 | A | `PedidoBuilderTest` | El builder no entrega pedidos inválidos y aplica el cupón BOSQUE10 |
-| A | `ServicioFacturacionTest` | Cada país factura con su familia; las piezas de dos países no se mezclan |
 | B | `LegacyPayAdapterTest` | El adapter traduce montos, respuestas y errores; la excepción ajena no se filtra al dominio |
 | B | `ReintentoPagoTest`, `AuditoriaPagoTest`, `MetricasPagoTest` | Cada decorador agrega su comportamiento y delega en la pasarela envuelta |
 | C | `CatalogoCacheProxyTest` (con Mockito) | La segunda búsqueda de un mismo SKU no llega al catálogo real; un SKU distinto sí lo consulta |
@@ -375,13 +137,17 @@ Los retos comprueban que el diseño está **abierto a la extensión y cerrado a 
 
 | Reto | Qué se hizo | Archivos | Se modificó |
 |---|---|---|---|
-| **A · Perú** (Abstract Factory) | `FabricaPeru` con IGV 18 %, RUC de 11 dígitos y «Factura electrónica (SUNAT)». Un pedido con `"pais": "PE"` se factura correctamente. | `FabricaPeru`, `CalculadoraIgvPeru`, `ValidadorRuc`, `GeneradorFacturaSunat` (nuevos) | Nada |
+| **A · Perú** (Abstract Factory) | `FabricaPeru` con IGV 18 %, RUC de 11 dígitos y «Factura electrónica (SUNAT)». Un pedido con `"pais": "PE"` se factura correctamente. | `FabricaPeru`, `CalculadoraIgvPeru`, `ValidadorRucPeru`, `GeneradorFacturaSunat` (nuevos) | Nada |
 | **B · Métricas** (Decorator) | Decorador `MetricasPago`: cuenta los cobros y los aprobados de cada pasarela y escribe en consola la tasa de aprobación después de cada cobro. | `MetricasPago`, `MetricasPagoTest` (nuevos) | Solo `ConfiguracionPagos` (una línea, para agregar la capa) |
 | **C · WhatsApp** (Factory Method) | `NotificadorWhatsApp` y `NotificacionWhatsapp`: exige un número con indicativo (por ejemplo, `+573001234567`) y antepone «✅» al mensaje. Un pedido con `"canalNotificacion": "WHATSAPP"` se notifica. | `NotificadorWhatsApp`, `NotificacionWhatsapp` (nuevos) | Nada |
 
 **Reto A** · `evidencias/reto-A-diff.txt`
 ```
-<!-- pegar aquí la salida de evidencias/reto-A-diff.txt -->
+ .../shopflow/facturacion/CalculadoraIgvPeru.java   | 19 +++++++++++++++
+ .../unbosque/shopflow/facturacion/FabricaPeru.java | 27 ++++++++++++++++++++++
+ .../facturacion/GeneradorFacturaSunat.java         | 20 ++++++++++++++++
+ .../shopflow/facturacion/ValidadorRucPeru.java     | 16 +++++++++++++
+ 4 files changed, 82 insertions(+)
 ```
 
 **Reto B** · `evidencias/reto-B-diff.txt`
