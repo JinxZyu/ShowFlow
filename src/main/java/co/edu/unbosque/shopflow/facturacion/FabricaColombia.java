@@ -26,3 +26,4 @@ public class FabricaColombia implements FabricaFacturacion {
         return new GeneradorFacturaDian();
     }
 }
+

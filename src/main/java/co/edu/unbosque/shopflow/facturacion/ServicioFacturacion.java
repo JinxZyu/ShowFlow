@@ -9,10 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
-/**
- * Client del Abstract Factory: factura sin conocer ninguna clase concreta ni preguntar por el país.
- * Spring inyecta todas las fábricas; abrir un país nuevo es agregar una fábrica nueva.
- */
+
 @Service
 public class ServicioFacturacion {
 

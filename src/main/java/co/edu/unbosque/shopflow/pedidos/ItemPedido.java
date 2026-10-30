@@ -21,4 +21,3 @@ public record ItemPedido(String sku, String nombre, int cantidad, BigDecimal pre
         return precioUnitario.multiply(BigDecimal.valueOf(cantidad));
     }
 }
-
